@@ -10,10 +10,10 @@ import lombok.AllArgsConstructor;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@AllArgsConstructor
+@AllArgsConstructor//생성자 주입을 통해 의존성 주입받음: 결합도 낮춤
 public class BaseBall implements Runnable {
 
-    private final int COUNT_OF_NUMBERS = 3;
+    private final int COUNT_OF_NUMBERS = 3;//확장가능
     private NumberGenerator generator;
     private Input input;
     private Output output;
@@ -23,7 +23,7 @@ public class BaseBall implements Runnable {
         Numbers answer = generator.generate(COUNT_OF_NUMBERS);
 
         while (true) {
-            String inputString = input.input("숫자를 맞춰보세요.");
+            String inputString = input.input("숫자를 맞춰보세요: ");
             Optional<Numbers> inputNumbers = parse(inputString);
             if (inputNumbers.isEmpty()) {
                 output.inputError();

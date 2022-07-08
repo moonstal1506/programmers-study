@@ -1,11 +1,13 @@
 package com.programmers.java.baseball.engine.model;
 
 import lombok.AllArgsConstructor;
+import lombok.ToString;
 
 import java.util.BitSet;
 import java.util.function.BiConsumer;
 
 @AllArgsConstructor
+@ToString
 public class Numbers {
     private Integer[] nums;
 
