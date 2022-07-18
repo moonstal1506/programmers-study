@@ -18,7 +18,9 @@ class OrderTest {
         UUID customerId = UUID.randomUUID();
         List<OrderItem> orderItems = new ArrayList<>();
         orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
-        Order order = new Order(UUID.randomUUID(), customerId, orderItems, 10L);
+        FixedAmountVoucher fixedAmountVoucher = new FixedAmountVoucher(UUID.randomUUID(), 10L);
+        Order order = new Order(UUID.randomUUID(), customerId, orderItems, fixedAmountVoucher);
+
         Assert.isTrue(order.totalAmount()==90L,
                 MessageFormat.format("totalAmount {0} is not 90L",order.totalAmount()));
         Assertions.assertThat(order.totalAmount()).isEqualTo(90L);
