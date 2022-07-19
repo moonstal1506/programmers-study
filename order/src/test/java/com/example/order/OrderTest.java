@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OrderTest {
@@ -23,8 +24,22 @@ class OrderTest {
 
         Assert.isTrue(order.totalAmount()==90L,
                 MessageFormat.format("totalAmount {0} is not 90L",order.totalAmount()));
-        Assertions.assertThat(order.totalAmount()).isEqualTo(90L);
+        assertThat(order.totalAmount()).isEqualTo(90L);
     }
 
+    @Test
+    void order2() throws Exception {
 
+        List<OrderItem> orderItems = new ArrayList<>();
+        orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
+
+        UUID customerId = UUID.randomUUID();
+        OrderContext orderContext = new OrderContext();
+        OrderService orderService = orderContext.orderService();
+        Order order = orderService.createOrder(customerId, orderItems);
+
+        Assert.isTrue(order.totalAmount()==100L,
+                MessageFormat.format("totalAmount {0} is not 100L",order.totalAmount()));
+        assertThat(order.totalAmount()).isEqualTo(100L);
+    }
 }
