@@ -1,5 +1,6 @@
 package com.example.order;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.*;
 class OrderTest {
 
     @Test
+    @DisplayName("런타임 의존성")
     void order() throws Exception {
         UUID customerId = UUID.randomUUID();
         List<OrderItem> orderItems = new ArrayList<>();
@@ -27,13 +29,14 @@ class OrderTest {
     }
 
     @Test
+    @DisplayName("OrderContext")
     void order2() throws Exception {
 
         List<OrderItem> orderItems = new ArrayList<>();
         orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
 
         UUID customerId = UUID.randomUUID();
-        AppConfiguration orderContext = new AppConfiguration();
+        OrderContext orderContext = new OrderContext();
         OrderService orderService = orderContext.orderService();
         Order order = orderService.createOrder(customerId, orderItems);
 
@@ -43,6 +46,7 @@ class OrderTest {
     }
 
     @Test
+    @DisplayName("AnnotationConfigApplicationContext")
     void order3() throws Exception {
         List<OrderItem> orderItems = new ArrayList<>();
         orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
