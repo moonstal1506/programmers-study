@@ -1,7 +1,6 @@
 package com.example.order;
 
 import com.example.order.order.Order;
-import com.example.order.order.OrderContext;
 import com.example.order.order.OrderItem;
 import com.example.order.order.OrderService;
 import com.example.order.voucher.FixedAmountVoucher;
@@ -9,6 +8,8 @@ import com.example.order.voucher.Voucher;
 import com.example.order.voucher.VoucherRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.BeanFactoryUtils;
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.util.Assert;
 
@@ -35,22 +36,22 @@ class OrderTest {
         assertThat(order.totalAmount()).isEqualTo(90L);
     }
 
-    @Test
-    @DisplayName("OrderContext")
-    void order2() throws Exception {
-
-        List<OrderItem> orderItems = new ArrayList<>();
-        orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
-
-        UUID customerId = UUID.randomUUID();
-        OrderContext orderContext = new OrderContext();
-        OrderService orderService = orderContext.orderService();
-        Order order = orderService.createOrder(customerId, orderItems);
-
-        Assert.isTrue(order.totalAmount()==100L,
-                MessageFormat.format("totalAmount {0} is not 100L",order.totalAmount()));
-        assertThat(order.totalAmount()).isEqualTo(100L);
-    }
+//    @Test
+//    @DisplayName("OrderContext")
+//    void order2() throws Exception {
+//
+//        List<OrderItem> orderItems = new ArrayList<>();
+//        orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
+//
+//        UUID customerId = UUID.randomUUID();
+//        OrderContext orderContext = new OrderContext();
+//        OrderService orderService = orderContext.orderService();
+//        Order order = orderService.createOrder(customerId, orderItems);
+//
+//        Assert.isTrue(order.totalAmount()==100L,
+//                MessageFormat.format("totalAmount {0} is not 100L",order.totalAmount()));
+//        assertThat(order.totalAmount()).isEqualTo(100L);
+//    }
 
     @Test
     @DisplayName("AnnotationConfigApplicationContext")
@@ -79,6 +80,9 @@ class OrderTest {
         AnnotationConfigApplicationContext applicationContext =
                 new AnnotationConfigApplicationContext(AppConfiguration.class);
 
+        //같은 타입 두개의 빈 등록되어 있을 때
+        //BeanFactoryAnnotationUtils.qualifiedBeansOfType(applicationContext.getBeanFactory(), VoucherRepository.class, "memory");
+
         VoucherRepository voucherRepository = applicationContext.getBean(VoucherRepository.class);
         Voucher voucher = voucherRepository.insert(new FixedAmountVoucher(UUID.randomUUID(), 10L));
 
@@ -89,4 +93,5 @@ class OrderTest {
                 MessageFormat.format("totalAmount {0} is not 90L",order.totalAmount()));
         assertThat(order.totalAmount()).isEqualTo(90L);
     }
+
 }

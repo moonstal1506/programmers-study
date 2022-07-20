@@ -1,5 +1,7 @@
-package com.example.order.order;
+package com.example.order;
 
+import com.example.order.order.OrderRepository;
+import com.example.order.order.OrderService;
 import com.example.order.voucher.MemoryOrderRepository;
 import com.example.order.voucher.MemoryVoucherRepository;
 import com.example.order.voucher.VoucherRepository;
@@ -14,12 +16,12 @@ public class OrderContext {
     public OrderRepository orderRepository(){
         return new MemoryOrderRepository();
     }
-
+/*
     public VoucherService voucherService(){
         return new VoucherService(voucherRepository());
     }
 
     public OrderService orderService(){
         return new OrderService(voucherService(), orderRepository());
-    }
+    }*/
 }
