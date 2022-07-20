@@ -94,4 +94,18 @@ class OrderTest {
         assertThat(order.totalAmount()).isEqualTo(90L);
     }
 
+    @Test
+    @DisplayName("싱글톤")
+    void bean() throws Exception {
+
+        AnnotationConfigApplicationContext applicationContext =
+                new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        VoucherRepository voucherRepository1 = applicationContext.getBean(VoucherRepository.class);
+        VoucherRepository voucherRepository2 = applicationContext.getBean(VoucherRepository.class);
+
+        assertThat(voucherRepository1).isEqualTo(voucherRepository2);
+
+        applicationContext.close();//컨테이너에 등록된 빈 소멸
+    }
 }
