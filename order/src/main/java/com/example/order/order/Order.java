@@ -1,4 +1,6 @@
-package com.example.order;
+package com.example.order.order;
+
+import com.example.order.voucher.Voucher;
 
 import java.util.List;
 import java.util.Optional;

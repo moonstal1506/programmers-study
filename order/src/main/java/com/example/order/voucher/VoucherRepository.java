@@ -1,4 +1,4 @@
-package com.example.order;
+package com.example.order.voucher;
 
 import java.util.Optional;
 import java.util.UUID;

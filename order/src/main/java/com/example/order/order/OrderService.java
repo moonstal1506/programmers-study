@@ -1,5 +1,7 @@
-package com.example.order;
+package com.example.order.order;
 
+import com.example.order.voucher.Voucher;
+import com.example.order.voucher.VoucherService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

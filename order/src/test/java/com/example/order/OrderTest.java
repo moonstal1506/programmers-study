@@ -1,5 +1,12 @@
 package com.example.order;
 
+import com.example.order.order.Order;
+import com.example.order.order.OrderContext;
+import com.example.order.order.OrderItem;
+import com.example.order.order.OrderService;
+import com.example.order.voucher.FixedAmountVoucher;
+import com.example.order.voucher.Voucher;
+import com.example.order.voucher.VoucherRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

@@ -1,5 +1,7 @@
-package com.example.order;
+package com.example.order.voucher;
 
+import com.example.order.order.Order;
+import com.example.order.order.OrderRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
