@@ -8,4 +8,6 @@ public interface VoucherRepository {
 
     //Voucher 없을 수 있으므로 Optional
     Optional<Voucher> findById(UUID voucherId);
+
+    Voucher insert(Voucher voucher);
 }

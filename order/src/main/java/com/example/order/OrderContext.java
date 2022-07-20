@@ -6,21 +6,11 @@ import java.util.UUID;
 public class OrderContext {
 
     public VoucherRepository voucherRepository(){
-        return new VoucherRepository() {
-            @Override
-            public Optional<Voucher> findById(UUID voucherId) {
-                return Optional.empty();
-            }
-        };
+        return new MemoryVoucherRepository();
     }
 
     public OrderRepository orderRepository(){
-        return new OrderRepository() {
-            @Override
-            public void insert(Order order) {
-
-            }
-        };
+        return new MemoryOrderRepository();
     }
 
     public VoucherService voucherService(){

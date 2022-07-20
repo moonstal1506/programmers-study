@@ -61,4 +61,25 @@ class OrderTest {
                 MessageFormat.format("totalAmount {0} is not 100L",order.totalAmount()));
         assertThat(order.totalAmount()).isEqualTo(100L);
     }
+
+    @Test
+    @DisplayName("ComponentScan")
+    void order4() throws Exception {
+        List<OrderItem> orderItems = new ArrayList<>();
+        orderItems.add(new OrderItem(UUID.randomUUID(), 100L, 1));
+        UUID customerId = UUID.randomUUID();
+
+        AnnotationConfigApplicationContext applicationContext =
+                new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        VoucherRepository voucherRepository = applicationContext.getBean(VoucherRepository.class);
+        Voucher voucher = voucherRepository.insert(new FixedAmountVoucher(UUID.randomUUID(), 10L));
+
+        OrderService orderService = applicationContext.getBean(OrderService.class);
+        Order order = orderService.createOrder(customerId, orderItems, voucher.getVoucherId());
+
+        Assert.isTrue(order.totalAmount()==90L,
+                MessageFormat.format("totalAmount {0} is not 90L",order.totalAmount()));
+        assertThat(order.totalAmount()).isEqualTo(90L);
+    }
 }
