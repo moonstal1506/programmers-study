@@ -8,9 +8,8 @@ import com.example.order.voucher.Voucher;
 import com.example.order.voucher.VoucherRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.BeanFactoryUtils;
-import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
@@ -107,5 +106,21 @@ class OrderTest {
         assertThat(voucherRepository1).isEqualTo(voucherRepository2);
 
         applicationContext.close();//컨테이너에 등록된 빈 소멸
+    }
+
+    @Test
+    @DisplayName("프로퍼티")
+    void property() throws Exception {
+        AnnotationConfigApplicationContext applicationContext =
+                new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        String version = environment.getProperty("kdt.version");
+        Integer minimumOrderAmount = environment.getProperty("kdt.minimum-order-amount",Integer.class);
+        List supportVendors = environment.getProperty("kdt.support-vendors",List.class);
+
+        assertThat(version).isEqualTo("v1.0.0");
+        assertThat(minimumOrderAmount).isEqualTo(1);
+        System.out.println(MessageFormat.format("supportVendors->{0}",supportVendors));
     }
 }

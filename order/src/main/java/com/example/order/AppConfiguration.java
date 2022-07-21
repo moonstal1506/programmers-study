@@ -2,10 +2,7 @@ package com.example.order;
 
 import com.example.order.voucher.MemoryVoucherRepository;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.*;
 
 @Configuration
 @ComponentScan(basePackages = {"com.example.order.order", "com.example.order.voucher"})
@@ -13,12 +10,13 @@ import org.springframework.context.annotation.FilterType;
 //@ComponentScan(
 //        basePackages = {"com.example.order.order", "com.example.order.voucher"},
 //        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,value = MemoryVoucherRepository.class)})
+@PropertySource("application.properties")
 public class AppConfiguration {
 
-    @Bean(initMethod = "init")
-    public BeanOne beanOne(){
-        return new BeanOne();
-    }
+//    @Bean(initMethod = "init")
+//    public BeanOne beanOne() {
+//        return new BeanOne();
+//    }
 
 }
 
