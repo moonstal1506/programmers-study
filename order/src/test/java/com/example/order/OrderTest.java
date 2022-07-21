@@ -13,13 +13,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -159,5 +167,42 @@ class OrderTest {
 
         System.out.println(MessageFormat.format("is JdbcVoucherRepository->{0}",voucherRepository instanceof JdbcVoucherRepository));
         System.out.println(MessageFormat.format("is JdbcVoucherRepository->{0}",voucherRepository.getClass().getCanonicalName()));
+    }
+
+    @Test
+    void ClassPathResource() throws Exception {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        Resource resource = applicationContext.getResource("classpath:application.yaml");
+        File file = resource.getFile();
+        List<String> strings = Files.readAllLines(file.toPath());
+
+        System.out.println("resource.getClass().getCanonicalName() = " + resource.getClass().getCanonicalName());
+        System.out.println(strings.stream().reduce("",(a,b)->a+"\n"+b));
+    }
+
+    @Test
+    void FileUrlResource() throws Exception {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        Resource resource2 = applicationContext.getResource("file:test/sample.txt");
+        File file2 = resource2.getFile();
+        List<String> strings2 = Files.readAllLines(file2.toPath());
+
+        System.out.println("resource.getClass().getCanonicalName() = " + resource2.getClass().getCanonicalName());
+        System.out.println(strings2.stream().reduce("",(a,b)->a+"\n"+b));
+    }
+
+    @Test
+    void UrlResource() throws Exception {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        Resource resource3 = applicationContext.getResource("https://stackoverflow.com");
+        ReadableByteChannel readableByteChannel = Channels.newChannel(resource3.getURL().openStream());
+        BufferedReader bufferedReader = new BufferedReader(Channels.newReader(readableByteChannel, StandardCharsets.UTF_8));
+        String contents = bufferedReader.lines().collect(Collectors.joining("\n"));
+
+        System.out.println("resource.getClass().getCanonicalName() = " + resource3.getClass().getCanonicalName());
+        System.out.println(contents);
     }
 }
