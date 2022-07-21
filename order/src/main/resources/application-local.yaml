@@ -1,0 +1,11 @@
+kdt:
+  version: "v1.0"
+  minimum-order-amount: 1
+  support-vendors:
+    - a
+    - b
+    - c
+    - d
+  description: |-
+    line 1 hello
+    line 2 hi

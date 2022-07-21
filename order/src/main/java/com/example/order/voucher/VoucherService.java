@@ -14,7 +14,7 @@ public class VoucherService {
     private final VoucherRepository voucherRepository;
 
     //두개의 빈 등록되어 있을 때 에러
-    public VoucherService(@Qualifier("memory") VoucherRepository voucherRepository) {
+    public VoucherService(VoucherRepository voucherRepository) {
         this.voucherRepository = voucherRepository;
     }
 

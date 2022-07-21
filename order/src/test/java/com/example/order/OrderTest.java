@@ -5,10 +5,12 @@ import com.example.order.order.OrderItem;
 import com.example.order.order.OrderProperties;
 import com.example.order.order.OrderService;
 import com.example.order.voucher.FixedAmountVoucher;
+import com.example.order.voucher.JdbcVoucherRepository;
 import com.example.order.voucher.Voucher;
 import com.example.order.voucher.VoucherRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.Assert;
@@ -16,6 +18,7 @@ import org.springframework.util.Assert;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.*;
@@ -140,5 +143,21 @@ class OrderTest {
         assertThat(orderProperties.getMinimumOrderAmount()).isEqualTo(1);
         System.out.println(MessageFormat.format("supportVendors->{0}",orderProperties.getSupportVendors()));
         System.out.println(MessageFormat.format("description->{0}",orderProperties.getDescription()));
+    }
+
+    @Test
+    @DisplayName("profile")
+    void profile() throws Exception {
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+        applicationContext.register(AppConfiguration.class);
+
+        ConfigurableEnvironment environment = applicationContext.getEnvironment();
+        environment.setActiveProfiles("dev");
+        applicationContext.refresh();
+
+        VoucherRepository voucherRepository = applicationContext.getBean(VoucherRepository.class);
+
+        System.out.println(MessageFormat.format("is JdbcVoucherRepository->{0}",voucherRepository instanceof JdbcVoucherRepository));
+        System.out.println(MessageFormat.format("is JdbcVoucherRepository->{0}",voucherRepository.getClass().getCanonicalName()));
     }
 }
