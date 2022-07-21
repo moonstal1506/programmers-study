@@ -2,6 +2,7 @@ package com.example.order;
 
 import com.example.order.order.Order;
 import com.example.order.order.OrderItem;
+import com.example.order.order.OrderProperties;
 import com.example.order.order.OrderService;
 import com.example.order.voucher.FixedAmountVoucher;
 import com.example.order.voucher.Voucher;
@@ -118,9 +119,26 @@ class OrderTest {
         String version = environment.getProperty("kdt.version");
         Integer minimumOrderAmount = environment.getProperty("kdt.minimum-order-amount",Integer.class);
         List supportVendors = environment.getProperty("kdt.support-vendors",List.class);
+        List description = environment.getProperty("kdt.description", List.class);
+
 
         assertThat(version).isEqualTo("v1.0.0");
         assertThat(minimumOrderAmount).isEqualTo(1);
         System.out.println(MessageFormat.format("supportVendors->{0}",supportVendors));
+        System.out.println(MessageFormat.format("description->{0}",description));
+    }
+
+    @Test
+    @DisplayName("프로퍼티 주입받아 사용")
+    void OrderProperties() throws Exception {
+        AnnotationConfigApplicationContext applicationContext =
+                new AnnotationConfigApplicationContext(AppConfiguration.class);
+
+        OrderProperties orderProperties = applicationContext.getBean(OrderProperties.class);
+
+        assertThat(orderProperties.getVersion()).isEqualTo("v1.0.0");
+        assertThat(orderProperties.getMinimumOrderAmount()).isEqualTo(1);
+        System.out.println(MessageFormat.format("supportVendors->{0}",orderProperties.getSupportVendors()));
+        System.out.println(MessageFormat.format("description->{0}",orderProperties.getDescription()));
     }
 }

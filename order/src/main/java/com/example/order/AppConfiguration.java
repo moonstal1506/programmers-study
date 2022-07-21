@@ -1,7 +1,8 @@
 package com.example.order;
 
-import com.example.order.voucher.MemoryVoucherRepository;
+import com.example.order.configuration.YamlPropertiesFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 
 @Configuration
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.*;
 //@ComponentScan(
 //        basePackages = {"com.example.order.order", "com.example.order.voucher"},
 //        excludeFilters = {@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,value = MemoryVoucherRepository.class)})
-@PropertySource("application.properties")
+//@PropertySource("application.properties")
+@PropertySource(value = "application.yaml", factory = YamlPropertiesFactory.class)
+@EnableConfigurationProperties
 public class AppConfiguration {
 
 //    @Bean(initMethod = "init")
