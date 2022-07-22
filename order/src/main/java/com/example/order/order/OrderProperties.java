@@ -1,5 +1,7 @@
 package com.example.order.order;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -13,17 +15,12 @@ import java.util.List;
 @ConfigurationProperties(prefix = "kdt")// yml kdt 하위 바인딩됨
 public class OrderProperties implements InitializingBean {// 프로퍼티 속성 그룹화 시킬 때 주입받아씀
 
-    //    @Value("v1.1.1")
-//    @Value("${kdt.version}")
-//    @Value("${kdt.version2:v0.0.0}")//없으면 :v0.0.0
+    private static final Logger log = LoggerFactory.getLogger(OrderProperties.class);
+
     private String version;
 
-    //    @Value("1")
-//    @Value("${kdt.minimum-order-amount}")
     private int minimumOrderAmount;
 
-    //    @Value("a,b,c")
-//    @Value("${kdt.support-vendors}")
     private List<String> supportVendors;
 
     private String description;
@@ -33,10 +30,10 @@ public class OrderProperties implements InitializingBean {// 프로퍼티 속성
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        System.out.println("version = " + version);
-        System.out.println("minimumOrderAmount = " + minimumOrderAmount);
-        System.out.println("supportVendors = " + supportVendors);
-        System.out.println("javaHome = " + javaHome);
+        log.debug("version-> {}", version);
+        log.debug("minimumOrderAmount->{}", minimumOrderAmount);
+        log.debug("supportVendors->{}", supportVendors);
+        log.debug("javaHome->{}", javaHome);
     }
 
     public String getVersion() {

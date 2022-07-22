@@ -4,6 +4,7 @@ import com.example.order.order.OrderProperties;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class LoggingTest {
@@ -12,6 +13,7 @@ public class LoggingTest {
 
     @Test
     void logging() throws Exception {
+        AnsiOutput.setEnabled(AnsiOutput.Enabled.ALWAYS);
         AnnotationConfigApplicationContext applicationContext =
                 new AnnotationConfigApplicationContext(AppConfiguration.class);
 
