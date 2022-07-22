@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Repository
 //@Primary
 @Profile({"local","default"})
-public class MemoryVoucherRepository implements VoucherRepository, InitializingBean, DisposableBean {
+public class MemoryVoucherRepository implements VoucherRepository {
 
     private final Map<UUID, Voucher> storage = new ConcurrentHashMap<>();
 
@@ -32,27 +32,5 @@ public class MemoryVoucherRepository implements VoucherRepository, InitializingB
     public Voucher insert(Voucher voucher) {
         storage.put(voucher.getVoucherId(), voucher);
         return voucher;
-    }
-
-    //생성
-    @PostConstruct
-    public void postConstruct() {
-        System.out.println("=============postConstruct============");
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println("=============afterPropertiesSet============");
-    }
-
-    //소멸
-    @PreDestroy
-    public void preDestroy() {
-        System.out.println("=============preDestroy============");
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        System.out.println("=============destroy============");
     }
 }

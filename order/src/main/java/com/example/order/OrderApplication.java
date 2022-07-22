@@ -1,28 +1,32 @@
 package com.example.order;
 
 import com.example.order.order.OrderProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.ansi.AnsiOutput;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.text.MessageFormat;
 
 @SpringBootApplication
+@ComponentScan(basePackages = {"com.example.order.order", "com.example.order.voucher"})
 public class OrderApplication {
 
-    public static void main(String[] args) {
-//      SpringApplication.run(OrderApplication.class, args);
+    private static final Logger log = LoggerFactory.getLogger(OrderApplication.class);
 
-        SpringApplication springApplication = new SpringApplication(OrderApplication.class);
-        //설정에서 active 가능, arguments --spring.profiles.active=dev
-        //아무것도 설정안하면 default
-        springApplication.setAdditionalProfiles("local");
-        ConfigurableApplicationContext applicationContext = springApplication.run(args);
+    public static void main(String[] args) {
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(OrderApplication.class, args);
+
         OrderProperties orderProperties = applicationContext.getBean(OrderProperties.class);
 
-        System.out.println(MessageFormat.format("getVersion->{0}",orderProperties.getVersion()));
-        System.out.println(MessageFormat.format("getMinimumOrderAmount->{0}",orderProperties.getMinimumOrderAmount()));
-        System.out.println(MessageFormat.format("supportVendors->{0}",orderProperties.getSupportVendors()));
-        System.out.println(MessageFormat.format("description->{0}",orderProperties.getDescription()));
+        log.error("logger name=> {}", log.getName());
+        log.warn("Version->{}", orderProperties.getVersion());
+        log.warn("MinimumOrderAmount->{}", orderProperties.getMinimumOrderAmount());
+        log.info("supportVendors->{}", orderProperties.getSupportVendors());
+        log.info("description->{}", orderProperties.getDescription());
     }
 }
