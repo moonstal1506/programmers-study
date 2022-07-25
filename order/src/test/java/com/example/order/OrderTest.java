@@ -120,7 +120,7 @@ class OrderTest {
         applicationContext.close();//컨테이너에 등록된 빈 소멸
     }
 
-    @Test
+//    @Test
     @DisplayName("프로퍼티")
     void property() throws Exception {
         AnnotationConfigApplicationContext applicationContext =
@@ -139,7 +139,7 @@ class OrderTest {
         System.out.println(MessageFormat.format("description->{0}",description));
     }
 
-    @Test
+//    @Test
     @DisplayName("프로퍼티 주입받아 사용")
     void OrderProperties() throws Exception {
         AnnotationConfigApplicationContext applicationContext =
