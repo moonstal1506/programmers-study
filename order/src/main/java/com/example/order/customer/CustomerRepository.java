@@ -12,6 +12,8 @@ public interface CustomerRepository {
 
     //Customer save(Customer customer); insert,update 둘다 처리
 
+    int count();
+
     List<Customer> findAll();
 
     Optional<Customer> findById(UUID customerId);
