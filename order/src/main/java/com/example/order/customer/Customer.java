@@ -42,7 +42,6 @@ public class Customer {
         }
     }
 
-
     public UUID getCustomerId() {
         return customerId;
     }
