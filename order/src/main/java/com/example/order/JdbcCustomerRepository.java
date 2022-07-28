@@ -1,5 +1,6 @@
 package com.example.order;
 
+import com.example.order.customer.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,11 +86,6 @@ public class JdbcCustomerRepository {
         return uuids;
     }
 
-    private UUID toUUID(byte[] bytes) throws SQLException {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
-        return new UUID(byteBuffer.getLong(),byteBuffer.getLong());
-    }
-
     public int insertCustomer(UUID customerId, String name, String email) {
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/order_mgmt", "root", "1234");
              PreparedStatement statement = connection.prepareStatement(INSERT_SQL);
@@ -126,5 +122,47 @@ public class JdbcCustomerRepository {
             logger.error("Got error", e);
         }
         return 0;
+    }
+
+    public void transactionTest(Customer customer) {
+        String updateNameSql = "update customers set name = ? where customer_id = UUID_TO_BIN(?)";
+        String updateEmailSql = "update customers set email = ? where customer_id = UUID_TO_BIN(?)";
+
+        Connection connection = null;
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/order_mgmt", "root", "1234");
+            connection.setAutoCommit(false);
+
+            try (
+                    PreparedStatement updateNameStatement = connection.prepareStatement(updateNameSql);
+                    PreparedStatement updateEmailStatement = connection.prepareStatement(updateEmailSql);
+            ) {
+                updateEmailStatement.setString(1, customer.getEmail());
+                updateEmailStatement.setBytes(2, customer.getCustomerId().toString().getBytes());
+                updateEmailStatement.executeUpdate();
+
+                updateNameStatement.setString(3, customer.getName());
+                updateNameStatement.setBytes(2, customer.getCustomerId().toString().getBytes());
+                updateNameStatement.executeUpdate();
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException e) {
+            if(connection!=null){
+                try {
+                    connection.rollback();
+                    connection.close();
+                } catch (SQLException throwable) {
+                    logger.error("Got error", throwable);
+                    throw new RuntimeException(e);
+                }
+            }
+            logger.error("Got error", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private UUID toUUID(byte[] bytes) throws SQLException {
+        ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+        return new UUID(byteBuffer.getLong(),byteBuffer.getLong());
     }
 }
