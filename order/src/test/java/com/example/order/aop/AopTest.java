@@ -52,6 +52,9 @@ public class AopTest {
         //Before method called. Voucher com.example.order.voucher.VoucherRepository.insert(Voucher)
         //After method called with result -> FixedAmountVoucher{voucherId=3aca6db3-ab35-4196-91de-538ebc83f7a0, amount=100}
 
+        //TrackTime
+        //After method called with result -> FixedAmountVoucher{voucherId=bcb78e3b-6a7c-496d-9028-0951f80197ee, amount=100} and time taken 89300 nanoseconds
+
         voucherService.getVoucher(voucher.getVoucherId());
         //Before method called. Voucher com.example.order.voucher.VoucherService.getVoucher(UUID)
         //After method called with result -> FixedAmountVoucher{voucherId=f884588a-e73b-4248-afeb-2a2647563011, amount=100}
