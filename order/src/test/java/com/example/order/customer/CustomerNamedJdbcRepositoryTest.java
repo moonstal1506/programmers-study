@@ -1,17 +1,22 @@
 package com.example.order.customer;
 
+import com.example.order.JdbcCustomerRepository;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
@@ -28,6 +33,8 @@ import static org.hamcrest.Matchers.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CustomerNamedJdbcRepositoryTest {
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomerNamedJdbcRepositoryTest.class);
+
     @Configuration
     @ComponentScan(basePackages = {"com.example.order.customer"})
     static class Config{
@@ -43,7 +50,6 @@ class CustomerNamedJdbcRepositoryTest {
             return dataSource;
         }
 
-
         @Bean
         public JdbcTemplate jdbcTemplate(DataSource dataSource) {
             return new JdbcTemplate(dataSource);
@@ -57,6 +63,11 @@ class CustomerNamedJdbcRepositoryTest {
         @Bean
         public PlatformTransactionManager platformTransactionManager(DataSource dataSource) {
             return new DataSourceTransactionManager(dataSource);
+        }
+
+        @Bean
+        public TransactionTemplate transactionTemplate(PlatformTransactionManager platformTransactionManager) {
+            return new TransactionTemplate(platformTransactionManager);
         }
     }
 
@@ -145,16 +156,20 @@ class CustomerNamedJdbcRepositoryTest {
         assertThat(prevOne.isEmpty(), is(false));
         Customer newOne = new Customer(UUID.randomUUID(), "a", "a@gmail.com",LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
         Customer insertedNewOne = customerJdbcRepository.insert(newOne);
-        //DuplicateKeyException
-        customerJdbcRepository.testTransaction(
-                new Customer(insertedNewOne.getCustomerId(),
-                        "b",
-                        prevOne.get().getEmail(),
-                        newOne.getCreated_At()));
+        try {
+            //DuplicateKeyException
+            customerJdbcRepository.testTransaction(
+                    new Customer(insertedNewOne.getCustomerId(),
+                            "b",
+                            prevOne.get().getEmail(),
+                            newOne.getCreated_At()));
+        } catch (DataAccessException e) {
+            logger.error("Got error when testing transaction",e);
+        }
+
         //업데이트 전과 동일해야함
         Optional<Customer> maybeNewOne = customerJdbcRepository.findById(insertedNewOne.getCustomerId());
         assertThat(maybeNewOne.isEmpty(), is(false));
         assertThat(maybeNewOne.get(),samePropertyValuesAs(newOne));
     }
-
 }

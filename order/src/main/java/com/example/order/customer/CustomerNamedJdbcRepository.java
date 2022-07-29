@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
@@ -27,7 +29,7 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcCustomerRepository.class);
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final PlatformTransactionManager transactionManager;
+    private final TransactionTemplate transactionTemplate;
 
     private RowMapper<Customer> rowMapper = (resultSet, i) -> {
         UUID customerId = toUUID(resultSet.getBytes("customer_id"));
@@ -40,9 +42,9 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
     };
     
 
-    public CustomerNamedJdbcRepository(NamedParameterJdbcTemplate jdbcTemplate, PlatformTransactionManager transactionManager) {
+    public CustomerNamedJdbcRepository(NamedParameterJdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.transactionManager = transactionManager;
+        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
@@ -112,18 +114,15 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
     }
 
     public void testTransaction(Customer customer) {
-        //트랜잭션 가져옴
-        TransactionStatus transaction = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        try {
-            jdbcTemplate.update("update customers set name = :name where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
-            jdbcTemplate.update("update customers set email = :email where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
-            //성공시 커밋
-            transactionManager.commit(transaction);
-        } catch (DataAccessException e) {
-            //실패시 롤백
-            logger.error("Got error", e);
-            transactionManager.rollback(transaction);
-        }
+        //리턴 결과 없을 때
+        //예외시 알아서 롤백처리
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
+                jdbcTemplate.update("update customers set name = :name where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
+                jdbcTemplate.update("update customers set email = :email where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
+            }
+        });
     }
 
     @Override
