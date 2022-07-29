@@ -9,7 +9,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
@@ -50,6 +52,11 @@ class CustomerNamedJdbcRepositoryTest {
         @Bean
         public NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
             return new NamedParameterJdbcTemplate(dataSource);
+        }
+
+        @Bean
+        public PlatformTransactionManager platformTransactionManager(DataSource dataSource) {
+            return new DataSourceTransactionManager(dataSource);
         }
     }
 
@@ -129,4 +136,25 @@ class CustomerNamedJdbcRepositoryTest {
         assertThat(retrievedCustomer.isEmpty(), is(false));
         assertThat(retrievedCustomer.get(),samePropertyValuesAs(newCustomer));
     }
+
+    @Test
+    @Order(7)
+    @DisplayName("트랜잭션 테스트")
+    public void testTransaction() {
+        Optional<Customer> prevOne = customerJdbcRepository.findById(newCustomer.getCustomerId());
+        assertThat(prevOne.isEmpty(), is(false));
+        Customer newOne = new Customer(UUID.randomUUID(), "a", "a@gmail.com",LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS));
+        Customer insertedNewOne = customerJdbcRepository.insert(newOne);
+        //DuplicateKeyException
+        customerJdbcRepository.testTransaction(
+                new Customer(insertedNewOne.getCustomerId(),
+                        "b",
+                        prevOne.get().getEmail(),
+                        newOne.getCreated_At()));
+        //업데이트 전과 동일해야함
+        Optional<Customer> maybeNewOne = customerJdbcRepository.findById(insertedNewOne.getCustomerId());
+        assertThat(maybeNewOne.isEmpty(), is(false));
+        assertThat(maybeNewOne.get(),samePropertyValuesAs(newOne));
+    }
+
 }

@@ -141,7 +141,7 @@ public class JdbcCustomerRepository {
                 updateEmailStatement.setBytes(2, customer.getCustomerId().toString().getBytes());
                 updateEmailStatement.executeUpdate();
 
-                updateNameStatement.setString(3, customer.getName());
+                updateNameStatement.setString(1, customer.getName());
                 updateNameStatement.setBytes(2, customer.getCustomerId().toString().getBytes());
                 updateNameStatement.executeUpdate();
                 connection.setAutoCommit(true);
