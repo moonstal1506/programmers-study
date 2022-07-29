@@ -29,7 +29,6 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcCustomerRepository.class);
     private final NamedParameterJdbcTemplate jdbcTemplate;
-    private final TransactionTemplate transactionTemplate;
 
     private RowMapper<Customer> rowMapper = (resultSet, i) -> {
         UUID customerId = toUUID(resultSet.getBytes("customer_id"));
@@ -42,9 +41,8 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
     };
     
 
-    public CustomerNamedJdbcRepository(NamedParameterJdbcTemplate jdbcTemplate, TransactionTemplate transactionTemplate) {
+    public CustomerNamedJdbcRepository(NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.transactionTemplate = transactionTemplate;
     }
 
     @Override
@@ -113,17 +111,17 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
         }
     }
 
-    public void testTransaction(Customer customer) {
-        //리턴 결과 없을 때
-        //예외시 알아서 롤백처리
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                jdbcTemplate.update("update customers set name = :name where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
-                jdbcTemplate.update("update customers set email = :email where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
-            }
-        });
-    }
+//    public void testTransaction(Customer customer) {
+//        //리턴 결과 없을 때
+//        //예외시 알아서 롤백처리
+//        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+//            @Override
+//            protected void doInTransactionWithoutResult(TransactionStatus status) {
+//                jdbcTemplate.update("update customers set name = :name where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
+//                jdbcTemplate.update("update customers set email = :email where customer_id = UUID_TO_BIN(:customerId)", toPramMap(customer));
+//            }
+//        });
+//    }
 
     @Override
     public void deleteAll() {
