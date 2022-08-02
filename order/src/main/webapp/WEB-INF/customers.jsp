@@ -14,6 +14,7 @@
 <body class="container-fluid">
 <h1>Spring App</h1>
 <%--    <p>The time on the server is <%=request.getAttribute("serverTime")%></p>--%>
+<img src="<c:url value="/resources/a.JPG"/>" class="img-fluid">
 <p>The time on the server is ${serverTime}</p>
 <h2>Customer Table</h2>
 <table class="table table-striped table-hover">
