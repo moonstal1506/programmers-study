@@ -3,17 +3,11 @@ package com.example.order.customer;
 import com.example.order.JdbcCustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
@@ -25,6 +19,7 @@ import java.util.*;
  * DriverManager->Datasource->JdbcTemplate
  */
 @Repository
+@Primary
 public class CustomerNamedJdbcRepository implements CustomerRepository {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcCustomerRepository.class);
@@ -138,7 +133,7 @@ public class CustomerNamedJdbcRepository implements CustomerRepository {
             put("customerId", customer.getCustomerId().toString().getBytes());
             put("name", customer.getName());
             put("email", customer.getEmail());
-            put("createdAt", Timestamp.valueOf(customer.getCreated_At()));
+            put("createdAt", Timestamp.valueOf(customer.getCreatedAt()));
             put("lastLoginAt", customer.getLastLoginAt() != null ? Timestamp.valueOf(customer.getLastLoginAt()):null);
         }};
     }

@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 import java.nio.ByteBuffer;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -47,7 +46,7 @@ public class CustomerJdbcRepository implements CustomerRepository {
                 customer.getCustomerId().toString().getBytes(),
                 customer.getName(),
                 customer.getEmail(),
-                Timestamp.valueOf(customer.getCreated_At()));
+                Timestamp.valueOf(customer.getCreatedAt()));
         if (update != 1) {
             throw new RuntimeException("Noting was inserted");
         }
