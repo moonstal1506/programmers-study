@@ -11,8 +11,8 @@
 </head>
 <body class="container-fluid">
 <h1>Spring App</h1>
-<img th:src="@{/resources/a.JPG}" class="img-fluid">
-<p th:text="'The time on the server is' + ${serverTime}">서버 타임</p>
+<img th:src="@{/resources/avoca.jpg}" class="img-fluid">
+<p th:text="'The time on the server is ' + ${serverTime}">서버 타임</p>
 <h2>Customer Table</h2>
 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
     <a th:href="@{/customers/new}" class="btn btn-primary me-md-2" type="button">create</a>
@@ -25,15 +25,17 @@
         <th scope="col">Email</th>
         <th scope="col">CreatedAt</th>
         <th scope="col">LastLoginAt</th>
+        <th scope="col">Detail</th>
     </tr>
     </thead>
     <tbody>
         <tr th:each="customer:${customers}" th:object="${customer}">
-            <th th:text="${customer.customerId}"></th>
-            <td th:text="${customer.name}"></td>
+            <td th:text="*{customerId}"></td>
+            <td th:text="*{name}"></td>
             <td th:text="*{email}"></td>
             <td th:text="*{createdAt}"></td>
             <td th:text="*{lastLoginAt}"></td>
+            <td><a th:href="@{/customers/{customerId}(customerId=*{customerId})}" class="btn btn-primary me-md-2" type="button">detail</a></td>
         </tr>
     </tbody>
 </table>

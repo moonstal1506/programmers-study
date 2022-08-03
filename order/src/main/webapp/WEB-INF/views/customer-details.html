@@ -10,19 +10,24 @@
   <title>New Customer</title>
 </head>
 <body class="container-fluid">
-<h1>Spring App</h1>
-<img th:src="@{/resources/avoca.jpg}" class="img-fluid">
-<h2>New Customer</h2>
-<form th:action="@{/customers/new}" method="post">
+<h2>Customer Detail</h2>
+<form th:object="${customer}">
+  <div class="mb-3">
+    <label for="customerId" class="form-label">ID</label>
+    <input type="text" name="customerId" class="form-control" id="customerId" th:value="*{customerId}" readonly>
+  </div>
   <div class="mb-3">
     <label for="exampleInputEmail1" class="form-label">Email address</label>
-    <input type="email" name="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+    <input type="text" name="email" class="form-control" id="exampleInputEmail1" th:value="*{email}" readonly>
   </div>
   <div class="mb-3">
-    <label for="exampleInputPassword1" class="form-label">Name</label>
-    <input type="text" name="name" class="form-control" id="exampleInputPassword1">
+    <label for="exampleInputName" class="form-label">Name</label>
+    <input type="text" name="name" class="form-control" id="exampleInputName" th:value="*{name}" readonly>
   </div>
-  <button type="submit" class="btn btn-primary">Submit</button>
+  <div class="mb-3">
+    <label for="createdAt" class="form-label">createdAt</label>
+    <input type="text" name="name" class="form-control" id="createdAt" th:value="*{createdAt}" readonly>
+  </div>
 </form>
 </body>
 </html>

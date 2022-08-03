@@ -2,15 +2,14 @@ package com.example.order.customer;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 public class CustomerController {
@@ -35,6 +34,17 @@ public class CustomerController {
     @GetMapping("/customers/new")
     public String viewNewCustomersPage() {
         return "views/new-customers";
+    }
+
+    @GetMapping("/customers/{customerId}")
+    public String findCustomer(@PathVariable("customerId") UUID customerId, Model model) {
+        Optional<Customer> maybeCustomer = customerService.getCustomer(customerId);
+        if (maybeCustomer.isPresent()) {
+            model.addAttribute("customer", maybeCustomer.get());
+            return "views/customer-details";
+        }else {
+            return "views/404";
+        }
     }
 
     @PostMapping("/customers/new")

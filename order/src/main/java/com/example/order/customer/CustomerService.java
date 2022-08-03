@@ -1,6 +1,8 @@
 package com.example.order.customer;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public interface CustomerService {
     void createCustomers(List<Customer> customers);
@@ -9,4 +11,5 @@ public interface CustomerService {
 
     List<Customer> getAllCustomers();
 
+    Optional<Customer> getCustomer(UUID customerId);
 }
