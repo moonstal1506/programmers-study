@@ -3,7 +3,9 @@ package com.example.order.customer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
@@ -18,6 +20,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public void createCustomers(List<Customer> customers) {
         customers.forEach(customerRepository::insert);
+    }
+
+    @Override
+    public Customer createCustomer(String email, String name) {
+        Customer customer = new Customer(UUID.randomUUID(), name, email, LocalDateTime.now());
+        return customerRepository.insert(customer);
     }
 
     @Override
