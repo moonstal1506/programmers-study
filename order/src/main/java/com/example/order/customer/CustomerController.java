@@ -20,9 +20,15 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
+    @ResponseBody
+    @GetMapping("/api/v1/customers")
+    public List<Customer> findCustomers() {
+        return customerService.getAllCustomers();
+    }
+
     //    @RequestMapping(value = "/customers",method = RequestMethod.GET)
     @GetMapping("/customers")
-    public String findCustomers(Model model) {
+    public String viewCustomersPage(Model model) {
         List<Customer> allCustomers = customerService.getAllCustomers();
 //        return new ModelAndView("jsp/customers", Map.of("serverTime", LocalDateTime.now(),"customers",allCustomers));
 //        return new ModelAndView("views/customers", Map.of("serverTime", LocalDateTime.now(),"customers",allCustomers));

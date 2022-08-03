@@ -1,6 +1,8 @@
 package com.example.order.servlet;
 
 import com.example.order.customer.CustomerController;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +11,14 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.*;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.xml.MarshallingHttpMessageConverter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.oxm.xstream.XStreamMarshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.WebApplicationInitializer;
@@ -30,6 +37,9 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 import javax.sql.DataSource;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
@@ -75,6 +85,21 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
         @Override
         public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
             this.applicationContext = applicationContext;
+        }
+
+        @Override //configureMessageConverters 모든 메시지 컨버터를 오버라이드 해버림 -> extendMessageConverters 확장
+        public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+            //xml
+            MarshallingHttpMessageConverter messageConverter = new MarshallingHttpMessageConverter();
+            XStreamMarshaller xStreamMarshaller = new XStreamMarshaller();
+            messageConverter.setMarshaller(xStreamMarshaller);
+            messageConverter.setUnmarshaller(xStreamMarshaller);//xml을 자바 인스턴스로
+            converters.add(0,messageConverter); //순서줌
+
+            JavaTimeModule javaTimeModule = new JavaTimeModule();
+            javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME));
+            Jackson2ObjectMapperBuilder modules = Jackson2ObjectMapperBuilder.json().modules(javaTimeModule);
+            converters.add(1, new MappingJackson2HttpMessageConverter(modules.build()));
         }
     }
 
