@@ -1,6 +1,6 @@
 package com.example.order.servlet;
 
-import com.example.order.AppConfiguration;
+import com.example.order.customer.CustomerController;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,17 +8,14 @@ import org.springframework.beans.BeansException;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -31,7 +28,6 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 import javax.sql.DataSource;
 
@@ -41,9 +37,10 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Configuration
     @EnableWebMvc //mvc가 필요한 빈 자동등록
-    @ComponentScan(basePackages = "com.example.order.customer")
-    @EnableTransactionManagement
-    static class AppConfig implements WebMvcConfigurer, ApplicationContextAware {
+    @ComponentScan(basePackages = "com.example.order.customer",
+        includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,value = CustomerController.class),
+        useDefaultFilters = false)
+    static class ServletConfig implements WebMvcConfigurer, ApplicationContextAware {
 
         ApplicationContext applicationContext;
 
@@ -75,6 +72,17 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
                     .addResolver(new EncodedResourceResolver());
         }
 
+        @Override
+        public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+            this.applicationContext = applicationContext;
+        }
+    }
+
+    @Configuration
+    @ComponentScan(basePackages = "com.example.order.customer",
+            excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,value = CustomerController.class))
+    @EnableTransactionManagement
+    static class RootConfig{
         @Bean
         public DataSource dataSource() {
             HikariDataSource dataSource = DataSourceBuilder.create()
@@ -100,19 +108,19 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
         public PlatformTransactionManager platformTransactionManager(DataSource dataSource) {
             return new DataSourceTransactionManager(dataSource);
         }
-
-        @Override
-        public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-            this.applicationContext = applicationContext;
-        }
     }
 
     @Override
     public void onStartup(ServletContext servletContext){
         logger.info("Starting Server");
+        AnnotationConfigWebApplicationContext rootApplicationContext = new AnnotationConfigWebApplicationContext();
+        rootApplicationContext.register(RootConfig.class);
+        ContextLoaderListener loaderListener = new ContextLoaderListener(rootApplicationContext);
+        servletContext.addListener(loaderListener);
 
         AnnotationConfigWebApplicationContext applicationContext = new AnnotationConfigWebApplicationContext();
-        applicationContext.register(AppConfig.class);
+        applicationContext.register(ServletConfig.class);
+
         DispatcherServlet dispatcherServlet = new DispatcherServlet(applicationContext);
         ServletRegistration.Dynamic servletRegistration = servletContext.addServlet("test", dispatcherServlet);
         servletRegistration.addMapping("/");//모든 요청이 오면 dispatcherServlet

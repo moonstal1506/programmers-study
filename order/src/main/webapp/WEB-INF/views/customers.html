@@ -25,17 +25,15 @@
         <th scope="col">Email</th>
         <th scope="col">CreatedAt</th>
         <th scope="col">LastLoginAt</th>
-        <th scope="col">Detail</th>
     </tr>
     </thead>
     <tbody>
         <tr th:each="customer:${customers}" th:object="${customer}">
-            <td th:text="*{customerId}"></td>
+            <td><a th:href="@{/customers/{customerId}(customerId=*{customerId})}" th:text="*{customerId}"></a></td>
             <td th:text="*{name}"></td>
             <td th:text="*{email}"></td>
             <td th:text="*{createdAt}"></td>
             <td th:text="*{lastLoginAt}"></td>
-            <td><a th:href="@{/customers/{customerId}(customerId=*{customerId})}" class="btn btn-primary me-md-2" type="button">detail</a></td>
         </tr>
     </tbody>
 </table>
