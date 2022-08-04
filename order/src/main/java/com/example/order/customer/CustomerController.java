@@ -1,19 +1,21 @@
 package com.example.order.customer;
 
+import com.example.order.servlet.TestServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 @Controller
 public class CustomerController {
-
+    private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
     private final CustomerService customerService;
 
     public CustomerController(CustomerService customerService) {
@@ -24,6 +26,20 @@ public class CustomerController {
     @GetMapping("/api/v1/customers")
     public List<Customer> findCustomers() {
         return customerService.getAllCustomers();
+    }
+
+    @ResponseBody
+    @GetMapping("/api/v1/customers/{customerId}")
+    public ResponseEntity<Customer> findCustomers(@PathVariable("customerId") UUID customerId) {
+        Optional<Customer> customer = customerService.getCustomer(customerId);
+        return customer.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+    }
+
+    @ResponseBody
+    @PostMapping("/api/v1/customers/{customerId}")
+    public CustomerDto saveCustomer(@PathVariable("customerId") UUID customerId, @RequestBody CustomerDto customer) {
+        logger.info("Got customer save request {}", customer);
+        return customer;
     }
 
     //    @RequestMapping(value = "/customers",method = RequestMethod.GET)
