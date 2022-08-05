@@ -1,4 +1,6 @@
-package com.example.order.customer;
+package com.example.order.customer.controller;
+
+import com.example.order.customer.model.Customer;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

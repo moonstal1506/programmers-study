@@ -1,6 +1,7 @@
 package com.example.order.customer;
 
-import com.example.order.JdbcCustomerRepository;
+import com.example.order.customer.model.Customer;
+import com.example.order.customer.repository.CustomerNamedJdbcRepository;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;

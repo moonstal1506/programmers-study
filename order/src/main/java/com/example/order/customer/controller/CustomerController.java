@@ -1,6 +1,7 @@
-package com.example.order.customer;
+package com.example.order.customer.controller;
 
-import com.example.order.servlet.TestServlet;
+import com.example.order.customer.service.CustomerService;
+import com.example.order.customer.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

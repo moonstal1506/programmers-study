@@ -1,5 +1,7 @@
-package com.example.order.customer;
+package com.example.order.customer.service;
 
+import com.example.order.customer.model.Customer;
+import com.example.order.customer.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,4 +1,4 @@
-package com.example.order.customer;
+package com.example.order.customer.controller;
 
 //public record CreateCustomerRequest(String email, String name){}
 public class CreateCustomerRequest {

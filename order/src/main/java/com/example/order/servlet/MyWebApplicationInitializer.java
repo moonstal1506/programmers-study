@@ -1,6 +1,6 @@
 package com.example.order.servlet;
 
-import com.example.order.customer.CustomerController;
+import com.example.order.customer.controller.CustomerController;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.zaxxer.hikari.HikariDataSource;

@@ -1,6 +1,6 @@
 package com.example.order;
 
-import com.example.order.customer.Customer;
+import com.example.order.customer.model.Customer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

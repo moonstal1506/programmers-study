@@ -1,4 +1,6 @@
-package com.example.order.customer;
+package com.example.order.customer.repository;
+
+import com.example.order.customer.model.Customer;
 
 import java.util.List;
 import java.util.Optional;
