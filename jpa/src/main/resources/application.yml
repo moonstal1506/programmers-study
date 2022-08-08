@@ -4,6 +4,17 @@ spring:
     url: jdbc:h2:tcp://localhost/~/test;
     username: sa
     password:
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    open-in-view: false
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+#    org.hibernate.type: trace
 
 # https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/
 mybatis:
@@ -13,3 +24,4 @@ mybatis:
     default-fetch-size: 100
     default-statement-timeout: 30
   mapper-locations: classpath:mapper/*.xml
+
