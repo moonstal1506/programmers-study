@@ -14,6 +14,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableJpaRepositories(basePackages = "hello.jpa.domain")
@@ -53,6 +54,9 @@ public class DataSourceConfig {
         em.setPackagesToScan("hello.jpa.domain");
         em.setJpaVendorAdapter(jpaVendorAdapter); //하이버네이트 구현체 사용
 
+        Properties properties = new Properties();
+        properties.putAll(jpaProperties.getProperties());
+        em.setJpaProperties(properties);
         return em;
     }
 
