@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @SpringBootTest
@@ -31,5 +33,25 @@ public class ImproveMappingTest {
 
         transaction.commit();
     }
+
+    @Test
+    void mapped_supper_class_test() {
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        Order order = new Order();
+        order.setUuid(UUID.randomUUID().toString());
+        order.setOrderStatus(OrderStatus.OPENED);
+        order.setMemo("메모");
+        order.setOrderDatetime(LocalDateTime.now());
+
+        order.setCreatedBy("moon");
+        order.setCratedAt(LocalDateTime.now());
+        entityManager.persist(order);
+        transaction.commit();
+    }
+
 
 }
