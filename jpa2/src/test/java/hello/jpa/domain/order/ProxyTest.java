@@ -60,4 +60,29 @@ public class ProxyTest {
         member.getNickName();
         log.info("member use after is-loaded: {}", emf.getPersistenceUnitUtil().isLoaded(member)); //member 객체가 entity
     }
+
+    @Test
+    void move_persist() {
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        Order order = entityManager.find(Order.class, uuid);//영속상태
+
+        transaction.begin();
+
+        OrderItem item = new OrderItem(); //준영속상태
+        item.setQuantity(10);
+        item.setPrice(1000);
+
+        order.addOrderItem(item); //cascade = CascadeType.ALL-> 영속성 전이를 통해서 영속상태로 바뀌었다.
+        transaction.commit(); //flush()
+        entityManager.clear();
+        //------------------------------------
+
+        Order order2 = entityManager.find(Order.class, uuid);
+        transaction.begin();
+        order2.getOrderItems().remove(0);//고아상태 flush 순간 rds에서도 삭제를 하겠다.
+        transaction.commit(); //flush
+    }
+
 }
