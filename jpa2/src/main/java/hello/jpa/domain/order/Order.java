@@ -31,7 +31,7 @@ public class Order extends BaseEntity{
     @Column(name = "member_id", insertable = false, updatable = false) //fk
     private Long memberId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", referencedColumnName = "id")
     private Member member;
 
