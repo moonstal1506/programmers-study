@@ -1,6 +1,7 @@
 package hello.jpa.domain.order;
 
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,5 +71,39 @@ class OrderPersistenceTest {
         Member orderMemberEntity = entityManager.find(Member.class, orderEntity.getMemberId());
         // orderEntity.getMember() // 객체중심 설계라면 객체그래프 탐색을 해야하지 않을까?
         log.info("nick : {}", orderMemberEntity.getNickName());
+    }
+
+    @Test
+    void 연관관계_테스트() {
+        EntityManager entityManager = emf.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        transaction.begin();
+
+        Member member = new Member();
+        member.setName("이름");
+        member.setNickName("닉네임");
+        member.setAddress("주소");
+        member.setAge(10);
+
+        entityManager.persist(member);
+
+        Order order = new Order();
+        order.setUuid(UUID.randomUUID().toString());
+        order.setOrderStatus(OrderStatus.OPENED);
+        order.setOrderDatetime(LocalDateTime.now());
+        order.setMemo("부재시 연락주세요");
+        order.setMember(member);
+//        member.setOrders(Lists.newArrayList(order));
+
+        entityManager.persist(order);
+        transaction.commit();
+
+        entityManager.clear();
+        Order entity = entityManager.find(Order.class, order.getUuid());
+
+        log.info("{}", entity.getMember().getNickName()); //객체그래프 탐색
+        log.info("{}", entity.getMember().getOrders().size());
+        log.info("{}", order.getMember().getOrders().size());
     }
 }
