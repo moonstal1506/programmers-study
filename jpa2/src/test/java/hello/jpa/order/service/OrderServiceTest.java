@@ -1,12 +1,18 @@
 package hello.jpa.order.service;
 
+import hello.jpa.domain.order.OrderRepository;
 import hello.jpa.domain.order.OrderStatus;
 import hello.jpa.order.dto.*;
+import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,9 +28,12 @@ class OrderServiceTest {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
     String uuid = UUID.randomUUID().toString();
 
-    @Test
+    @BeforeEach
     void save_test() {
         // Given
         OrderDto orderDto = OrderDto.builder()
@@ -60,6 +69,37 @@ class OrderServiceTest {
 
         // Then
         log.info("UUID:{}", uuid);
-        Assertions.assertThat(uuid).isEqualTo(savedUuid);
+        assertThat(uuid).isEqualTo(savedUuid);
     }
+
+    @AfterEach
+    void tearDown() {
+        orderRepository.deleteAll();
+    }
+
+    @Test
+    void findOneTest() throws NotFoundException {
+        //given
+        String orderUuid = uuid;
+
+        //when
+        OrderDto one = orderService.findOne(uuid);
+
+        //then
+        assertThat(one.getUuid()).isEqualTo(orderUuid);
+    }
+
+    @Test
+    void findAllTest() {
+        //given
+        PageRequest page = PageRequest.of(0, 10);
+
+        //when
+        Page<OrderDto> all = orderService.findAll(page);
+
+        //then
+        assertThat(all.getTotalElements()).isEqualTo(1);
+    }
+
+
 }
