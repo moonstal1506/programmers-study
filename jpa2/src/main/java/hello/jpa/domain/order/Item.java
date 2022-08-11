@@ -21,10 +21,16 @@ public abstract class Item extends BaseEntity{
     private int price;
     private int stockQuantity;
 
-    @OneToMany(mappedBy = "item")
-    private List<OrderItem> orderItems;
+    @ManyToOne
+    @JoinColumn(name = "order_item_id", referencedColumnName = "id")
+    private OrderItem orderItem;
 
-    public void addOrderItem(OrderItem orderItem) {
-        orderItem.setItem(this);
+    public void setOrderItem(OrderItem orderItem) {
+        if (Objects.nonNull(this.orderItem)) {
+            this.orderItem.getItems().remove(this);
+        }
+
+        this.orderItem = orderItem;
+        orderItem.getItems().add(this);
     }
 }
