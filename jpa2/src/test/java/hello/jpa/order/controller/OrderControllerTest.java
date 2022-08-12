@@ -8,9 +8,11 @@ import hello.jpa.order.service.OrderService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -19,12 +21,14 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@AutoConfigureRestDocs
 @AutoConfigureMockMvc
 @SpringBootTest
 class OrderControllerTest {
@@ -61,13 +65,12 @@ class OrderControllerTest {
                         OrderItemDto.builder()
                                 .price(1000)
                                 .quantity(100)
-                                .itemDtos(List.of(
-                                        ItemDto.builder()
-                                                .type(ItemType.FOOD)
-                                                .chef("백종원")
-                                                .price(1000)
-                                                .build()
-                                ))
+                                .itemDto(ItemDto.builder()
+                                        .type(ItemType.FOOD)
+                                        .chef("백종원")
+                                        .price(1000)
+                                        .build()
+                                )
                                 .build()
                 ))
                 .build();
@@ -99,22 +102,57 @@ class OrderControllerTest {
                         OrderItemDto.builder()
                                 .price(1000)
                                 .quantity(100)
-                                .itemDtos(List.of(
-                                        ItemDto.builder()
-                                                .type(ItemType.FOOD)
-                                                .chef("백종원")
-                                                .price(1000)
-                                                .build()
-                                ))
+                                .itemDto(ItemDto.builder()
+                                        .type(ItemType.FOOD)
+                                        .chef("백종원")
+                                        .price(1000)
+                                        .build()
+                                )
                                 .build()
                 ))
                 .build();
-        // When // Then
+        // when, then
         mockMvc.perform(post("/orders")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderDto)))
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andDo(print())
+                .andDo(document("order-save",
+                        requestFields(
+                                fieldWithPath("uuid").type(JsonFieldType.STRING).description("UUID"),
+                                fieldWithPath("orderDatetime").type(JsonFieldType.STRING).description("orderDatetime"),
+                                fieldWithPath("orderStatus").type(JsonFieldType.STRING).description("orderStatus"),
+                                fieldWithPath("memo").type(JsonFieldType.STRING).description("memo"),
+                                fieldWithPath("memberDto").type(JsonFieldType.OBJECT).description("memberDto"),
+                                fieldWithPath("memberDto.id").type(JsonFieldType.NULL).description("memberDto.id"),
+                                fieldWithPath("memberDto.name").type(JsonFieldType.STRING).description("memberDto.name"),
+                                fieldWithPath("memberDto.nickName").type(JsonFieldType.STRING).description("memberDto.nickName"),
+                                fieldWithPath("memberDto.age").type(JsonFieldType.NUMBER).description("memberDto.age"),
+                                fieldWithPath("memberDto.address").type(JsonFieldType.STRING).description("memberDto.address"),
+                                fieldWithPath("memberDto.description").type(JsonFieldType.STRING).description("memberDto.desc"),
+                                fieldWithPath("orderItemDtos[]").type(JsonFieldType.ARRAY).description("orderItemDtos"),
+                                fieldWithPath("orderItemDtos[].id").type(JsonFieldType.NULL).description("orderItemDtos.id"),
+                                fieldWithPath("orderItemDtos[].price").type(JsonFieldType.NUMBER)
+                                        .description("orderItemDtos.price"),
+                                fieldWithPath("orderItemDtos[].quantity").type(JsonFieldType.NUMBER)
+                                        .description("orderItemDtos.quantity"),
+                                fieldWithPath("orderItemDtos[].itemDto").type(JsonFieldType.OBJECT)
+                                        .description("orderItemDtos.itemDto"),
+                                fieldWithPath("orderItemDtos[].itemDto.price").type(JsonFieldType.NUMBER)
+                                        .description("orderItemDtos.itemDto.price"),
+                                fieldWithPath("orderItemDtos[].itemDto.stockQuantity").type(JsonFieldType.NUMBER)
+                                        .description("orderItemDtos.itemDto.stockQuantity"),
+                                fieldWithPath("orderItemDtos[].itemDto.type").type(JsonFieldType.STRING)
+                                        .description("orderItemDtos.itemDto.type"),
+                                fieldWithPath("orderItemDtos[].itemDto.chef").type(JsonFieldType.STRING)
+                                        .description("orderItemDtos.itemDto.chef")
+                        ),
+                        responseFields(
+                                fieldWithPath("statusCode").type(JsonFieldType.NUMBER).description("상태코드"),
+                                fieldWithPath("data").type(JsonFieldType.STRING).description("데이터"),    // uuid 넘겨줌
+                                fieldWithPath("serverDatetime").type(JsonFieldType.STRING).description("응답시간")
+                        ))
+                );
     }
 
     @Test
@@ -123,6 +161,7 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
+
     }
 
     @Test

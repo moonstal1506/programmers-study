@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,16 +22,10 @@ public abstract class Item extends BaseEntity{
     private int price;
     private int stockQuantity;
 
-    @ManyToOne
-    @JoinColumn(name = "order_item_id", referencedColumnName = "id")
-    private OrderItem orderItem;
+    @OneToMany(mappedBy = "item", orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-    public void setOrderItem(OrderItem orderItem) {
-        if (Objects.nonNull(this.orderItem)) {
-            this.orderItem.getItems().remove(this);
-        }
-
-        this.orderItem = orderItem;
-        orderItem.getItems().add(this);
+    public void addOrderItem(OrderItem orderItem) {
+        orderItem.setItem(this);
     }
 }

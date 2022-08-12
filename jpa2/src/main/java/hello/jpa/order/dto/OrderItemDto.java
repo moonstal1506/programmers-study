@@ -14,5 +14,5 @@ public class OrderItemDto {
     private Integer price;
     private Integer quantity;
 
-    private List<ItemDto> itemDtos;
+    private ItemDto itemDto;
 }
