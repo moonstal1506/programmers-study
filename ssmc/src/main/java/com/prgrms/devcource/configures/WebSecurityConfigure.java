@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -44,6 +45,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .and()
                 .formLogin() //스프링 시큐리티가 로그인 폼 자동 생성
                 .defaultSuccessUrl("/") //로그인 성공시 갈 곳
+//                .loginPage("/my-login")//커스터마이징
+//                .usernameParameter("my-username")
+//                .passwordParameter("my-password")
                 .permitAll() //로그인은 권한 필요 없음
                 .and()
                 /**
@@ -69,6 +73,17 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 //                .antMatchers("/api/**")
                 .anyRequest().requiresSecure()  //모든 요청은 시큐어(https) 필요
                 .and()
+                .sessionManagement()
+                .sessionFixation().changeSessionId()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .invalidSessionUrl("/")
+                .maximumSessions(1)//최대 동시로그인 가능 개수
+                    .maxSessionsPreventsLogin(false)//기본 false
+                    .and()
+                .and()
+                /**
+                 * 예외처리핸들러
+                 */
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
         ;
