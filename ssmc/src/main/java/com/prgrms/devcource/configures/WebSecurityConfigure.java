@@ -2,8 +2,12 @@ package com.prgrms.devcource.configures;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.access.vote.UnanimousBased;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,9 +19,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -46,9 +53,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/me").hasAnyRole("USER", "ADMIN") //인증 영역
-                .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN') and oddAdmin") //isFullyAuthenticated 리멤머미로 인증되지 않은 사용자
+                .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN')") //isFullyAuthenticated 리멤머미로 인증되지 않은 사용자
                 .anyRequest().permitAll() //익명영역
-                .expressionHandler(securityExpressionHandler())
+                .accessDecisionManager(accessDecisionManager())
                 .and()
                 .formLogin() //스프링 시큐리티가 로그인 폼 자동 생성
                 .defaultSuccessUrl("/") //로그인 성공시 갈 곳
@@ -109,10 +116,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         };
     }
 
-    public SecurityExpressionHandler<FilterInvocation> securityExpressionHandler() {
-        return new CustomWebSecurityExpressionHandler(
-                new AuthenticationTrustResolverImpl(),
-                "ROLE_"
-        );
+    @Bean
+    public AccessDecisionManager accessDecisionManager() {
+        List<AccessDecisionVoter<?>> voters = new ArrayList<>();
+        voters.add(new WebExpressionVoter());
+        voters.add(new OddAdminVoter(new AntPathRequestMatcher("/admin")));
+        return new UnanimousBased(voters);
     }
 }
