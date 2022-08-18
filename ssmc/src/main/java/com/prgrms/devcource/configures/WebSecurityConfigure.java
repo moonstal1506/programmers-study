@@ -36,37 +36,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Bean
-    @Qualifier("myAsyncTaskExecutor")
-    public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(3);
-        executor.setMaxPoolSize(5);
-        executor.setThreadNamePrefix("my-executor-");
-        return executor;
-    }
-
-    @Bean
-    public DelegatingSecurityContextAsyncTaskExecutor taskExecutor(
-            @Qualifier("myAsyncTaskExecutor") AsyncTaskExecutor delegate
-    ) {
-        return new DelegatingSecurityContextAsyncTaskExecutor(delegate);
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser("user").password("{noop}user123").roles("USER")
-                .and()
-                .withUser("admin01").password("{noop}admin123").roles("ADMIN")
-                .and()
-                .withUser("admin02").password("{noop}admin123").roles("ADMIN")
-        ;
-    }
-
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers("/assets/**"); //스프링 시큐리티 필터 적용하지 않겠다
+        web.ignoring().antMatchers("/assets/**", "/h2-console/**");
     }
 
     @Override
