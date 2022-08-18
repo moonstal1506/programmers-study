@@ -40,37 +40,41 @@ import java.util.List;
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
+    private final DataSource dataSource;
+
+    public WebSecurityConfigure(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/assets/**", "/h2-console/**");
     }
 
-    @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource) {
-        JdbcDaoImpl jdbcDao = new JdbcDaoImpl();
-        jdbcDao.setDataSource(dataSource);
-        jdbcDao.setEnableAuthorities(false);
-        jdbcDao.setEnableGroups(true);
-        jdbcDao.setUsersByUsernameQuery(
-                "SELECT " +
-                        "login_id, passwd, true " +
-                        "FROM " +
-                        "users " +
-                        "WHERE " +
-                        "login_id = ?"
-        );
-        jdbcDao.setGroupAuthoritiesByUsernameQuery(
-                "SELECT " +
-                        "u.login_id, g.name, p.name " +
-                        "FROM " +
-                        "users u JOIN groups g ON u.group_id = g.id " +
-                        "LEFT JOIN group_permission gp ON g.id = gp.group_id " +
-                        "LEFT JOIN permissions p ON p.id = gp.permission_id " +
-                        "WHERE " +
-                        "u.login_id = ?"
-        );
-        return jdbcDao;
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.jdbcAuthentication()
+                .dataSource(dataSource)
+                .usersByUsernameQuery(
+                        "SELECT " +
+                                "login_id, passwd, true " +
+                                "FROM " +
+                                "users " +
+                                "WHERE " +
+                                "login_id = ?"
+                )
+                .groupAuthoritiesByUsername(
+                        "SELECT " +
+                                "u.login_id, g.name, p.name " +
+                                "FROM " +
+                                "users u JOIN groups g ON u.group_id = g.id " +
+                                "LEFT JOIN group_permission gp ON g.id = gp.group_id " +
+                                "JOIN permissions p ON p.id = gp.permission_id " +
+                                "WHERE " +
+                                "u.login_id = ?"
+                )
+                .getUserDetailsService().setEnableAuthorities(false)
+        ;
     }
 
     @Bean
