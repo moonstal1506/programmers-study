@@ -32,6 +32,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    //서비스에 null 문제 해결
+    public WebSecurityConfigure() {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
@@ -73,6 +78,8 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .invalidateHttpSession(true)//생략해도 무관 이미 기본값에 설정
                 .clearAuthentication(true)
                 .and()
+//                .httpBasic()
+//                .and()
                 /**
                  * remember me 설정
                  */
