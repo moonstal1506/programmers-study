@@ -2,8 +2,11 @@ package com.prgrms.devcource.configures;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
@@ -17,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
@@ -32,9 +36,21 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    //서비스에 null 문제 해결
-    public WebSecurityConfigure() {
-        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    @Bean
+    @Qualifier("myAsyncTaskExecutor")
+    public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(3);
+        executor.setMaxPoolSize(5);
+        executor.setThreadNamePrefix("my-executor-");
+        return executor;
+    }
+
+    @Bean
+    public DelegatingSecurityContextAsyncTaskExecutor taskExecutor(
+            @Qualifier("myAsyncTaskExecutor") AsyncTaskExecutor delegate
+    ) {
+        return new DelegatingSecurityContextAsyncTaskExecutor(delegate);
     }
 
     @Override
@@ -57,7 +73,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/me").hasAnyRole("USER", "ADMIN") //인증 영역
+                .antMatchers("/me", "/asyncHello", "/someMethod").hasAnyRole("USER", "ADMIN") //인증 영역
                 .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN')") //isFullyAuthenticated 리멤머미로 인증되지 않은 사용자
                 .anyRequest().permitAll() //익명영역
                 .accessDecisionManager(accessDecisionManager())
