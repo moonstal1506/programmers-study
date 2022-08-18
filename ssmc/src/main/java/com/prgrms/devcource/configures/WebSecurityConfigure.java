@@ -20,6 +20,10 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -27,6 +31,7 @@ import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,14 +46,45 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         web.ignoring().antMatchers("/assets/**", "/h2-console/**");
     }
 
+    @Bean
+    public UserDetailsService userDetailsService(DataSource dataSource) {
+        JdbcDaoImpl jdbcDao = new JdbcDaoImpl();
+        jdbcDao.setDataSource(dataSource);
+        jdbcDao.setEnableAuthorities(false);
+        jdbcDao.setEnableGroups(true);
+        jdbcDao.setUsersByUsernameQuery(
+                "SELECT " +
+                        "login_id, passwd, true " +
+                        "FROM " +
+                        "users " +
+                        "WHERE " +
+                        "login_id = ?"
+        );
+        jdbcDao.setGroupAuthoritiesByUsernameQuery(
+                "SELECT " +
+                        "u.login_id, g.name, p.name " +
+                        "FROM " +
+                        "users u JOIN groups g ON u.group_id = g.id " +
+                        "LEFT JOIN group_permission gp ON g.id = gp.group_id " +
+                        "LEFT JOIN permissions p ON p.id = gp.permission_id " +
+                        "WHERE " +
+                        "u.login_id = ?"
+        );
+        return jdbcDao;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/me", "/asyncHello", "/someMethod").hasAnyRole("USER", "ADMIN") //인증 영역
+                .antMatchers("/me").hasAnyRole("USER", "ADMIN") //인증 영역
                 .antMatchers("/admin").access("isFullyAuthenticated() and hasRole('ADMIN')") //isFullyAuthenticated 리멤머미로 인증되지 않은 사용자
                 .anyRequest().permitAll() //익명영역
-                .accessDecisionManager(accessDecisionManager())
                 .and()
                 .formLogin() //스프링 시큐리티가 로그인 폼 자동 생성
                 .defaultSuccessUrl("/") //로그인 성공시 갈 곳
@@ -111,11 +147,4 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         };
     }
 
-    @Bean
-    public AccessDecisionManager accessDecisionManager() {
-        List<AccessDecisionVoter<?>> voters = new ArrayList<>();
-        voters.add(new WebExpressionVoter());
-        voters.add(new OddAdminVoter(new AntPathRequestMatcher("/admin")));
-        return new UnanimousBased(voters);
-    }
 }
