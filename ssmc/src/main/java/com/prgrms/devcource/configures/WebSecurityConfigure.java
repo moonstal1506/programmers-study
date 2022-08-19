@@ -1,7 +1,9 @@
 package com.prgrms.devcource.configures;
 
+import com.prgrms.devcource.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,10 +42,11 @@ import java.util.List;
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final DataSource dataSource;
+    private UserService userService;
 
-    public WebSecurityConfigure(DataSource dataSource) {
-        this.dataSource = dataSource;
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -53,28 +56,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.jdbcAuthentication()
-                .dataSource(dataSource)
-                .usersByUsernameQuery(
-                        "SELECT " +
-                                "login_id, passwd, true " +
-                                "FROM " +
-                                "users " +
-                                "WHERE " +
-                                "login_id = ?"
-                )
-                .groupAuthoritiesByUsername(
-                        "SELECT " +
-                                "u.login_id, g.name, p.name " +
-                                "FROM " +
-                                "users u JOIN groups g ON u.group_id = g.id " +
-                                "LEFT JOIN group_permission gp ON g.id = gp.group_id " +
-                                "JOIN permissions p ON p.id = gp.permission_id " +
-                                "WHERE " +
-                                "u.login_id = ?"
-                )
-                .getUserDetailsService().setEnableAuthorities(false)
-        ;
+        auth.userDetailsService(userService);//커스텀 구현한 유저 디테일 서비스 적용
     }
 
     @Bean
@@ -114,6 +96,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .rememberMe()
                 .rememberMeParameter("remember-me")
                 .tokenValiditySeconds(300)
+                .userDetailsService(getApplicationContext().getBean(UserDetailsService.class))
                 .and()
                 /**
                  * http요청을 https요청으로 리다이렉트
