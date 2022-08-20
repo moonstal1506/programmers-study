@@ -1,6 +1,7 @@
 package com.prgrms.devcource.configures;
 
 import com.prgrms.devcource.jwt.Jwt;
+import com.prgrms.devcource.jwt.JwtAuthenticationFilter;
 import com.prgrms.devcource.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,6 +65,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         );
     }
 
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        Jwt jwt = getApplicationContext().getBean(Jwt.class);
+        return new JwtAuthenticationFilter(jwtConfigure.getHeader(), jwt);
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -90,6 +97,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                  */
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler())
+                .and()
+                //SecurityContextPersistenceFilter 다음 위치에 들어감
+                .addFilterAfter(jwtAuthenticationFilter(), SecurityContextPersistenceFilter.class)
         ;
     }
 
