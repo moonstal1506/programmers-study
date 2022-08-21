@@ -1,6 +1,8 @@
 spring:
   application:
     name: spring security 01
+  main:
+    allow-circular-references: true
   messages:
     basename: i18n/messages
     encoding: UTF-8

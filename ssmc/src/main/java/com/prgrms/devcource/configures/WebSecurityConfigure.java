@@ -2,12 +2,14 @@ package com.prgrms.devcource.configures;
 
 import com.prgrms.devcource.jwt.Jwt;
 import com.prgrms.devcource.jwt.JwtAuthenticationFilter;
+import com.prgrms.devcource.jwt.JwtAuthenticationProvider;
 import com.prgrms.devcource.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -28,27 +30,15 @@ import javax.servlet.http.HttpServletResponse;
 public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private UserService userService;
-    private JwtConfigure jwtConfigure;
+    private final JwtConfigure jwtConfigure;
 
-    @Autowired
-    public void setUserService(UserService userService) {
-        this.userService = userService;
-    }
-
-    @Autowired
-    public void setJwtConfigure(JwtConfigure jwtConfigure) {
+    public WebSecurityConfigure(JwtConfigure jwtConfigure) {
         this.jwtConfigure = jwtConfigure;
     }
 
     @Override
     public void configure(WebSecurity web) {
         web.ignoring().antMatchers("/assets/**", "/h2-console/**");
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService);//커스텀 구현한 유저 디테일 서비스 적용
     }
 
     @Bean
@@ -63,6 +53,22 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 jwtConfigure.getClientSecret(),
                 jwtConfigure.getExpirySeconds()
         );
+    }
+
+    @Bean
+    public JwtAuthenticationProvider jwtAuthenticationProvider(Jwt jwt, UserService userService) {
+        return new JwtAuthenticationProvider(jwt, userService);
+    }
+
+    @Autowired
+    public void configureAuthentication(AuthenticationManagerBuilder builder, JwtAuthenticationProvider provider) {
+        builder.authenticationProvider(provider);
+    }
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
     }
 
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -103,6 +109,7 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
         ;
     }
 
+    @Bean
     public AccessDeniedHandler accessDeniedHandler() {
         return (request, response, e) -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
