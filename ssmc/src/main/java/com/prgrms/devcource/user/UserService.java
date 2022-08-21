@@ -5,6 +5,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class UserService {
 
@@ -25,4 +27,8 @@ public class UserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public Optional<User> findByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId);
+    }
 }

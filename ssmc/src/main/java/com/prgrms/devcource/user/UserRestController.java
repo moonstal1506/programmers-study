@@ -4,6 +4,7 @@ import com.prgrms.devcource.jwt.JwtAuthentication;
 import com.prgrms.devcource.jwt.JwtAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,5 +27,14 @@ public class UserRestController {
         JwtAuthentication principal = (JwtAuthentication) authenticated.getPrincipal();
         User user = (User) authenticated.getDetails();
         return new UserDto(principal.token, principal.username, user.getGroup().getName());
+    }
+
+    @GetMapping(path = "/user/me")
+    public UserDto me(@AuthenticationPrincipal JwtAuthentication authentication) {
+        return userService.findByLoginId(authentication.username)
+                .map(user ->
+                        new UserDto(authentication.token, authentication.username, user.getGroup().getName())
+                )
+                .orElseThrow(()->new IllegalArgumentException("Could not found user for " + authentication.username));
     }
 }
