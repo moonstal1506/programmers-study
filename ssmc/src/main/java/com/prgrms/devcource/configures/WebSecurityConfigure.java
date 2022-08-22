@@ -2,6 +2,7 @@ package com.prgrms.devcource.configures;
 
 import com.prgrms.devcource.jwt.Jwt;
 import com.prgrms.devcource.jwt.JwtAuthenticationFilter;
+import com.prgrms.devcource.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.prgrms.devcource.oauth2.OAuth2AuthenticationSuccessHandler;
 import com.prgrms.devcource.user.UserService;
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
@@ -53,6 +56,11 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
+    }
+
+    @Bean
     public OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
         Jwt jwt = getApplicationContext().getBean(Jwt.class);
         return new OAuth2AuthenticationSuccessHandler(jwt, userService);
@@ -81,6 +89,9 @@ public class WebSecurityConfigure extends WebSecurityConfigurerAdapter {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .oauth2Login()
+                .authorizationEndpoint()
+                .authorizationRequestRepository(authorizationRequestRepository())
+                .and()
                 .successHandler(oAuth2AuthenticationSuccessHandler())
                 .and()
                 /**
